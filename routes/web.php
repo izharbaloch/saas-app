@@ -9,7 +9,7 @@ Route::get('/', function () {
 });
 
 Route::resource('schools', SchoolController::class);
-Route::domain('{subdomain}.saas-app.test')->group(function () {
+Route::prefix('{school}')->group(function () {
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->middleware(['identify.tenant', 'auth', 'verified'])->name('dashboard');

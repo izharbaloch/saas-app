@@ -16,15 +16,15 @@ class IdentifyTenant
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $subdomain = $request->route('subdomain');
+        $subdomain = $request->route('school');
 
         $school = School::where('subdomain', $subdomain)->where('is_active', true)->first();
         if (!$school) {
             abort(404, "School Not Found");
         }
-        session(['current_school_id' => $school->id]);
+        session(['current_school_id' => $school->id, 'current_school_slug' => $school->subdomain,]);
 
-        dd(session('current_school_id'));
+        // dd(session('current_school_id'));
 
         return $next($request);
     }
