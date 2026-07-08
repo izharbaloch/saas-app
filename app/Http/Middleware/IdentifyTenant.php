@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use App\Models\School;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\URL;
 use Symfony\Component\HttpFoundation\Response;
 
 class IdentifyTenant
@@ -25,6 +26,10 @@ class IdentifyTenant
         session(['current_school_id' => $school->id, 'current_school_slug' => $school->subdomain,]);
 
         // dd(session('current_school_id'));
+
+        URL::defaults([
+            'school' => $school->subdomain,
+        ]);
 
         return $next($request);
     }

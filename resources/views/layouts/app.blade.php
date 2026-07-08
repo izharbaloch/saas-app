@@ -25,6 +25,7 @@
         }
     </script>
     @stack('styles')
+    @livewireStyles
 </head>
 
 <body class="h-full bg-slate-50 font-sans antialiased" x-data="{ sidebarOpen: false }">
@@ -59,9 +60,7 @@
             <!-- Group: Main -->
             <p class="mb-1 px-3 text-[10px] font-semibold uppercase tracking-widest text-slate-500">Main</p>
 
-            <a href="{{ route('dashboard', [
-                'school' => session('current_school_slug'),
-            ]) }}"
+            <a href="{{ route('dashboard') }}"
                 class="group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium
                       {{ request()->routeIs('dashboard') ? 'bg-indigo-600/20 text-indigo-300' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }} transition-colors">
                 <svg class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
@@ -402,6 +401,7 @@
     </div><!-- end main wrapper -->
 
     @stack('scripts')
+    @livewireScripts
 </body>
 
 </html>
