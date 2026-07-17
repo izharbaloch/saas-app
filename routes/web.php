@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SchoolClassController;
 use App\Http\Controllers\SchoolController;
+use App\Http\Controllers\SectionController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -18,6 +19,7 @@ Route::middleware(['identify.tenant', 'auth', 'verified'])->prefix('{school}')->
 
     // Classes Route
     Route::resource('/classes', SchoolClassController::class);
+    Route::get('sections', [SectionController::class, 'index'])->name('sections.index');
 });
 
 Route::middleware('auth')->group(function () {

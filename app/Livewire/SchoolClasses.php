@@ -59,6 +59,8 @@ class SchoolClasses extends Component
         $class->delete();
 
         session()->flash('success', 'Class Delete successfully!');
+        $this->resetValidation();
+
     }
 
     public function resetForm()
