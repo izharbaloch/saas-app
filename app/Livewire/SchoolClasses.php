@@ -4,87 +4,73 @@ namespace App\Livewire;
 
 use App\Models\SchoolClass;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 class SchoolClasses extends Component
 {
+    use WithPagination;
+
     public string $name = '';
     public string $grade = '';
-    public $status = 1;
+    public bool $status = true;
 
-    public $showForm = false;
-    public $classId  = null;
+    public bool $showForm = false;
+    public ?int $classId = null;
+
+    protected function rules(): array
+    {
+        return [
+            'name'   => 'required|string|max:255',
+            'grade'  => 'required|integer|between:1,12',
+            'status' => 'required|boolean',
+        ];
+    }
 
     public function save()
     {
-        $validate = $this->validate([
-            'name' => 'required',
-            'grade' => 'required',
-        ]);
+        $data = $this->validate();
 
-        // dd($validate);
+        SchoolClass::updateOrCreate(['id' => $this->classId], $data);
 
-        SchoolClass::create([
-            'name' => $this->name,
-            'grade' => $this->grade,
-            'status' => $this->status,
-        ]);
+        session()->flash('success', $this->classId ? 'Class updated successfully!' : 'Class created successfully!');
 
-        session()->flash('success', 'Class Created Successfully!');
-
-        $this->reset([
-            'name',
-            'grade',
-            'status'
-        ]);
-
-        $this->showForm = false;
+        $this->resetForm();
     }
 
-    public function edit($id)
+    public function edit(int $id)
     {
         $class = SchoolClass::findOrFail($id);
+
+        $this->fill($class->only('name', 'grade', 'status'));
         $this->classId = $class->id;
-        $this->name = $class->name;
-        $this->grade = $class->grade;
-        $this->status = $class->status;
         $this->showForm = true;
-    }
-
-    public function update()
-    {
-        $this->validate([
-            'name' => 'required',
-            'grade' => 'required',
-        ]);
-
-        $class = SchoolClass::findOrFail($this->classId);
-
-        $class->update([
-            'name' => $this->name,
-            'grade' => $this->grade,
-            'status' => $this->status,
-        ]);
-
-        session()->flash('success', 'Class Update Successfully!');
-
-        $this->reset([
-            'name',
-            'grade',
-            'status'
-        ]);
-
-        $this->showForm = false;
-        $this->classId = null;
+        $this->resetValidation();
     }
 
     public function openForm()
     {
+        $this->resetForm();
         $this->showForm = true;
     }
+
+    public function destroy($id)
+    {
+        $class = SchoolClass::findOrFail($id);
+        $class->delete();
+
+        session()->flash('success', 'Class Delete successfully!');
+    }
+
+    public function resetForm()
+    {
+        $this->reset(['name', 'grade', 'status', 'classId', 'showForm']);
+        $this->resetValidation();
+    }
+
     public function render()
     {
-        $classes = SchoolClass::get();
-        // dd($classes);
-        return view('livewire.school-classes', compact('classes'));
+        return view('livewire.school-classes', [
+            'classes' => SchoolClass::latest()->paginate(10),
+        ]);
     }
 }

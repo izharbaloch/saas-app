@@ -1,10 +1,20 @@
 <div>
     @if (session()->has('success'))
-        <div class="alert alert-success alert-dismissible show fade">
-            <div class="alert-body">
-                <button class="close" data-dismiss="alert"><span>&times;</span></button>
-                {{ session('success') }}
+        <div x-data="{ show: true }" x-show="show" x-transition
+            class="mb-4 flex items-start justify-between rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-emerald-800">
+            <div class="flex items-center gap-2">
+                <svg class="h-5 w-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+
+                <span class="text-sm font-medium">
+                    {{ session('success') }}
+                </span>
             </div>
+
+            <button @click="show = false" class="ml-4 text-emerald-600 hover:text-emerald-800">
+                ✕
+            </button>
         </div>
     @endif
     @if (!$showForm)
@@ -46,10 +56,9 @@
                             class="block w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900
                                focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-400
                                @error('grade') border-rose-400 bg-rose-50 @enderror">
-                            <option>Select grade…</option>
+                            <option value="">Select grade…</option>
                             @foreach (range(1, 12) as $g)
-                                <option value="{{ $g }}" {{ old('grade') == $g ? 'selected' : '' }}>Grade
-                                    {{ $g }}</option>
+                                <option value="{{ $g }}">Grade {{ $g }}</option>
                             @endforeach
                         </select>
                         @error('grade')
@@ -66,8 +75,8 @@
                             class="block w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900
                                focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-400
                                @error('status') border-rose-400 bg-rose-50 @enderror">
-                            <option value="1">Active</option>
-                            <option value="0">inactive</option>
+                            <option value="1" @selected($status)>Active</option>
+                            <option value="0" @selected(!$status)>Inactive</option>
                         </select>
                         @error('status')
                             <p class="mt-1.5 text-xs text-rose-600">{{ $message }}</p>
@@ -79,9 +88,9 @@
 
             {{-- ── Form Actions ────────────────────────────────────────── --}}
             <div class="flex items-center justify-end gap-3 pb-4">
-                <button type="reset"
+                <button type="button" wire:click="resetForm"
                     class="inline-flex items-center rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-colors">
-                    Reset
+                    Cancel
                 </button>
                 <button type="submit"
                     class="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm shadow-indigo-500/20 hover:bg-indigo-700 active:scale-[.98] transition-all">
@@ -115,8 +124,6 @@
 
                     @forelse($classes as $class)
                         @php
-                            $pct = $class->capacity > 0 ? round(($class->enrolled / $class->capacity) * 100) : 0;
-                            $barColor = $pct >= 100 ? 'bg-rose-500' : ($pct >= 80 ? 'bg-amber-400' : 'bg-emerald-500');
                             $statusMap = [
                                 'active' => [
                                     'bg-emerald-100 text-emerald-700 ring-emerald-600/20',
@@ -128,9 +135,8 @@
                                     'bg-slate-400',
                                     'Inactive',
                                 ],
-                                'full' => ['bg-rose-100 text-rose-700 ring-rose-600/20', 'bg-rose-500', 'Full'],
                             ];
-                            [$badge, $dot, $label] = $statusMap[$class->status] ?? $statusMap['active'];
+                            [$badge, $dot, $label] = $statusMap[$class->status ? 'active' : 'inactive'];
                         @endphp
                         <tr class="group hover:bg-slate-50 transition-colors">
 
@@ -147,9 +153,9 @@
                                 </div>
                             </td>
 
-                            {{-- Teacher --}}
+                            {{-- Grade --}}
                             <td class="px-5 py-4">
-                                <p class="text-sm text-slate-700">{{ $class->grade }}</p>
+                                <p class="text-sm text-slate-700">Grade {{ $class->grade }}</p>
                             </td>
 
                             {{-- Status badge --}}
@@ -165,19 +171,6 @@
                             <td class="px-5 py-4 text-right">
                                 <div
                                     class="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-
-                                    {{-- View --}}
-                                    <a href="#" title="View"
-                                        class="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-indigo-50 hover:text-indigo-600 transition-colors">
-                                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                                            stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.964-7.178Z" />
-                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                                        </svg>
-                                    </a>
-
                                     {{-- Edit --}}
                                     <button title="Edit" wire:click="edit({{ $class->id }})"
                                         class="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-amber-50 hover:text-amber-600 transition-colors">
@@ -189,7 +182,8 @@
                                     </button>
 
                                     {{-- Delete --}}
-                                    <button title="Delete"
+                                    <button title="Delete" wire:click="destroy({{ $class->id }})"
+                                        wire:confirm="Are you sure you want to delete this class?"
                                         class="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition-colors">
                                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                                             stroke="currentColor">
@@ -204,7 +198,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="px-5 py-16 text-center">
+                            <td colspan="4" class="px-5 py-16 text-center">
                                 <svg class="mx-auto h-12 w-12 text-slate-300" fill="none" viewBox="0 0 24 24"
                                     stroke-width="1" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round"
@@ -213,10 +207,10 @@
                                 <p class="mt-3 text-sm font-medium text-slate-500">No classes found</p>
                                 <p class="mt-1 text-xs text-slate-400">Try adjusting your filters or create a new
                                     class.</p>
-                                <a href="{{ route('classes.create') }}"
+                                <button type="button" wire:click="openForm"
                                     class="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700 transition-colors">
                                     + Create First Class
-                                </a>
+                                </button>
                             </td>
                         </tr>
                     @endforelse
