@@ -60,7 +60,6 @@ class SchoolClasses extends Component
 
         session()->flash('success', 'Class Delete successfully!');
         $this->resetValidation();
-
     }
 
     public function resetForm()
@@ -72,7 +71,7 @@ class SchoolClasses extends Component
     public function render()
     {
         return view('livewire.school-classes', [
-            'classes' => SchoolClass::latest()->paginate(10),
+            'classes' => SchoolClass::currentSchool()->latest()->paginate(10),
         ]);
     }
 }

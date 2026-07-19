@@ -65,7 +65,7 @@ class Section extends Component
     public function render()
     {
         return view('livewire.section', [
-            'sections' => ModelsSection::paginate(10),
+            'sections' => ModelsSection::currentSchool()->latest()->paginate(10),
         ]);
     }
 }
