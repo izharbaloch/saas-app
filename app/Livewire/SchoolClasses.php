@@ -21,7 +21,7 @@ class SchoolClasses extends Component
     {
         return [
             'name'   => 'required|string|max:255',
-            'grade'  => 'required|integer|between:1,12',
+            'grade'  => 'required|string|max:255',
             'status' => 'required|boolean',
         ];
     }
@@ -71,7 +71,7 @@ class SchoolClasses extends Component
     public function render()
     {
         return view('livewire.school-classes', [
-            'classes' => SchoolClass::currentSchool()->latest()->paginate(10),
+            'classes' => SchoolClass::latest()->paginate(10),
         ]);
     }
 }

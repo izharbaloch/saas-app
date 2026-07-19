@@ -5,6 +5,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SchoolClassController;
 use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\SectionController;
+use App\Http\Controllers\SubjectController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -22,6 +23,7 @@ Route::middleware(['identify.tenant', 'auth', 'verified'])->prefix('{school}')->
     Route::resource('/classes', SchoolClassController::class);
     Route::get('sections', [SectionController::class, 'index'])->name('sections.index');
     Route::get('academic-years', [AcademicYearController::class, 'index'])->name('academic.years.index');
+    Route::get('subjects', [SubjectController::class, 'index'])->name('subjects.index');
 });
 
 Route::middleware('auth')->group(function () {

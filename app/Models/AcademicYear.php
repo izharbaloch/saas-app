@@ -18,9 +18,4 @@ class AcademicYear extends Model
             'status' => 'boolean',
         ];
     }
-
-    public function scopeCurrentSchool($query)
-    {
-        return $query->where('school_id', session('current_school_id'));
-    }
 }

@@ -70,7 +70,7 @@ class AcademicYears extends Component
     public function render()
     {
         return view('livewire.academic-years', [
-            'academicYears' => AcademicYear::currentSchool()->latest()->paginate(10),
+            'academicYears' => AcademicYear::latest()->paginate(10),
         ]);
     }
 }
