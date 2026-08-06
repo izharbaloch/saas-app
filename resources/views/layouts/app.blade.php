@@ -41,7 +41,7 @@
     <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
         class="fixed inset-y-0 left-0 z-50 flex w-64 flex-col bg-slate-900 transition-transform duration-300 lg:translate-x-0">
         <!-- Logo -->
-        <div class="flex h-16 shrink-0 items-center gap-3 border-b border-slate-700/60 px-5">
+        {{-- <div class="flex h-16 shrink-0 items-center gap-3 border-b border-slate-700/60 px-5">
             <div
                 class="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 shadow-lg">
                 <svg class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke-width="2"
@@ -51,7 +51,7 @@
                 </svg>
             </div>
             <span class="font-jakarta text-lg font-bold text-white">EduCore SMS</span>
-        </div>
+        </div> --}}
 
         <!-- Navigation -->
         <nav class="flex-1 overflow-y-auto px-3 py-4 space-y-0.5">
