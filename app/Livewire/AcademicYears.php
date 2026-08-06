@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Livewire\Concerns\HasCrudForm;
 use App\Models\AcademicYear;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -9,8 +10,8 @@ use Livewire\WithPagination;
 class AcademicYears extends Component
 {
     use WithPagination;
+    use HasCrudForm;
 
-    public $showForm = false;
     public $academicYearId = null;
 
     public $name = '';
@@ -22,11 +23,11 @@ class AcademicYears extends Component
     public function rules(): array
     {
         return [
-            'name' => 'required',
-            'start_date' => 'required',
-            'end_date' => 'required',
-            'is_current' => 'required',
-            'status' => 'required',
+            'name' => 'required|string|max:255',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after:start_date',
+            'is_current' => 'required|boolean',
+            'status' => 'required|boolean',
         ];
     }
 
@@ -34,7 +35,7 @@ class AcademicYears extends Component
     {
         $data = $this->validate();
         AcademicYear::updateOrCreate(['id' => $this->academicYearId], $data);
-        session()->flash('success', $this->academicYearId ? 'Academic Year updated successfully!' : 'Academic Year created successfully!');
+        $this->flashSuccess($this->academicYearId ? 'Academic Year updated successfully!' : 'Academic Year created successfully!');
 
         $this->resetForm();
     }
@@ -53,13 +54,7 @@ class AcademicYears extends Component
     {
         $academicYear = AcademicYear::findOrFail($id);
         $academicYear->delete();
-        session()->flash('success', 'Academic Year delete successfully!');
-    }
-
-    public function openForm()
-    {
-        $this->showForm = true;
-        $this->resetValidation();
+        $this->flashSuccess('Academic Year deleted successfully!');
     }
 
     public function resetForm()
@@ -67,6 +62,7 @@ class AcademicYears extends Component
         $this->reset(['name', 'start_date', 'end_date', 'is_current', 'status', 'showForm', 'academicYearId']);
         $this->resetValidation();
     }
+
     public function render()
     {
         return view('livewire.academic-years', [

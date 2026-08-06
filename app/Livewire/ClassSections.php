@@ -2,57 +2,58 @@
 
 namespace App\Livewire;
 
+use App\Livewire\Concerns\HasCrudForm;
 use App\Models\AcademicYear;
 use App\Models\ClassSection;
 use App\Models\SchoolClass;
 use App\Models\Section;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Livewire\Component;
 use Livewire\WithPagination;
 
 class ClassSections extends Component
 {
     use WithPagination;
+    use HasCrudForm;
 
     public $class_id = null;
     public $section_ids = [];
     public $academic_year_ids = [];
-    public $teacher_id = null;
 
-    public $showForm = false;
-    public $assignRecorId = null;
+    public $assignRecordId = null;
 
-    protected function rules()
+    protected function rules(): array
     {
+        $schoolId = session('current_school_id');
+
         return [
-            'class_id' => 'required|exists:school_classes,id',
+            'class_id' => ['required', Rule::exists('school_classes', 'id')->where('school_id', $schoolId)],
             'section_ids' => 'required|array|min:1',
-            'section_ids.*' => 'exists:sections,id',
+            'section_ids.*' => Rule::exists('sections', 'id')->where('school_id', $schoolId),
 
             'academic_year_ids' => 'required|array|min:1',
-            'academic_year_ids.*' => 'exists:academic_years,id',
-
-            // 'teacher_ids' => 'required|array|min:1',
-            // 'teacher_ids.*' => 'exists:users,id',
+            'academic_year_ids.*' => Rule::exists('academic_years', 'id')->where('school_id', $schoolId),
         ];
     }
 
     public function save()
     {
-        // dd("yes her save");
+        $this->validate();
 
-        $data = $this->validate();
-
-        foreach ($this->section_ids as $sectionId) {
-            foreach ($this->academic_year_ids as $academicYearId) {
-                ClassSection::create([
-                    'class_id' => $this->class_id,
-                    'section_id' => $sectionId,
-                    'academic_year_id' => $academicYearId,
-                ]);
+        DB::transaction(function () {
+            foreach ($this->section_ids as $sectionId) {
+                foreach ($this->academic_year_ids as $academicYearId) {
+                    ClassSection::firstOrCreate([
+                        'class_id' => $this->class_id,
+                        'section_id' => $sectionId,
+                        'academic_year_id' => $academicYearId,
+                    ]);
+                }
             }
-        }
+        });
 
-        session()->flash('success', 'Record Save successfully!');
+        $this->flashSuccess('Record saved successfully!');
 
         $this->resetForm();
         $this->showForm = false;
@@ -64,49 +65,50 @@ class ClassSections extends Component
 
         $records = ClassSection::where('class_id', $record->class_id)->get();
 
-        $this->assignRecorId = $record->class_id;
-
+        $this->assignRecordId = $record->class_id;
         $this->class_id = $record->class_id;
-
         $this->section_ids = $records->pluck('section_id')->unique()->toArray();
-
         $this->academic_year_ids = $records->pluck('academic_year_id')->unique()->toArray();
-
-        $this->teacher_id = $record->teacher_id;
 
         $this->showForm = true;
     }
 
     public function update()
     {
-        // dd("yes her update");
-        $classSetion = ClassSection::where('class_id', $this->assignRecorId)->delete();
-        $data = $this->validate();
+        $this->validate();
 
-        foreach ($this->section_ids as $sectionId) {
-            foreach ($this->academic_year_ids as $academicYearId) {
-                ClassSection::create([
-                    'class_id' => $this->class_id,
-                    'section_id' => $sectionId,
-                    'academic_year_id' => $academicYearId,
-                ]);
+        DB::transaction(function () {
+            ClassSection::where('class_id', $this->assignRecordId)->delete();
+
+            foreach ($this->section_ids as $sectionId) {
+                foreach ($this->academic_year_ids as $academicYearId) {
+                    ClassSection::create([
+                        'class_id' => $this->class_id,
+                        'section_id' => $sectionId,
+                        'academic_year_id' => $academicYearId,
+                    ]);
+                }
             }
-        }
+        });
 
-        session()->flash('success', 'Record update successfully!');
+        $this->flashSuccess('Record updated successfully!');
 
         $this->resetForm();
         $this->showForm = false;
     }
 
-    public function openForm()
+    public function destroy($id)
     {
-        $this->showForm = true;
+        $record = ClassSection::findOrFail($id);
+
+        ClassSection::where('class_id', $record->class_id)->delete();
+
+        $this->flashSuccess('Assignment deleted successfully!');
     }
 
     public function resetForm()
     {
-        $this->reset(['class_id', 'section_ids', 'academic_year_ids', 'teacher_id']);
+        $this->reset(['class_id', 'section_ids', 'academic_year_ids', 'assignRecordId']);
         $this->resetValidation();
     }
 

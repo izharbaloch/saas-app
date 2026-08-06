@@ -24,7 +24,7 @@
         </div>
 
 
-        <livewire:section />
+        <livewire:sections />
 
     </div>
 

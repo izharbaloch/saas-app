@@ -21,7 +21,7 @@ Route::middleware(['identify.tenant', 'auth', 'verified'])->prefix('{school}')->
 
 
     // Classes Route
-    Route::resource('/classes', SchoolClassController::class);
+    Route::get('classes', [SchoolClassController::class, 'index'])->name('classes.index');
     Route::get('sections', [SectionController::class, 'index'])->name('sections.index');
     Route::get('academic-years', [AcademicYearController::class, 'index'])->name('academic.years.index');
     Route::get('subjects', [SubjectController::class, 'index'])->name('subjects.index');

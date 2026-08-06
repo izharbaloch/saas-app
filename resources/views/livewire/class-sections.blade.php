@@ -29,13 +29,13 @@
 
     @if ($showForm)
         {{-- Header --}}
-        <form wire:submit.prevent={{ $assignRecorId ? 'update' : 'save' }}>
+        <form wire:submit.prevent={{ $assignRecordId ? 'update' : 'save' }}>
 
             <div class="rounded-2xl border border-slate-200 bg-white shadow-sm">
 
                 <div class="border-b border-slate-100 px-6 py-5">
                     <h2 class="text-xl font-bold text-slate-800">
-                        {{ $assignRecorId ? 'Edit Assign Class Details' : 'Assign Class Details' }}
+                        {{ $assignRecordId ? 'Edit Assign Class Details' : 'Assign Class Details' }}
                     </h2>
                     <p class="mt-1 text-sm text-slate-500">
                         Assign Sections, Academic Years and Teachers to a Class.
@@ -50,7 +50,7 @@
                             Select Class <span class="text-red-500">*</span>
                         </label>
 
-                        <select wire:model.live="class_id"
+                        <select wire:model="class_id"
                             class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500">
 
                             <option value="">Select Class</option>
@@ -89,7 +89,7 @@
                         @foreach ($sections as $section)
                             <label
                                 class="flex items-center gap-3 rounded-lg border p-3 hover:bg-slate-50 cursor-pointer">
-                                <input type="checkbox" wire:model.live="section_ids" value="{{ $section->id }}"
+                                <input type="checkbox" wire:model="section_ids" value="{{ $section->id }}"
                                     class="rounded border-slate-300 text-indigo-600">
 
                                 <span>{{ $section->name }}</span>
@@ -118,7 +118,7 @@
                         @foreach ($academicYears as $academicYear)
                             <label
                                 class="flex items-center gap-3 rounded-lg border p-3 hover:bg-slate-50 cursor-pointer">
-                                <input type="checkbox" wire:model.live="academic_year_ids"
+                                <input type="checkbox" wire:model="academic_year_ids"
                                     value="{{ $academicYear->id }}" class="rounded border-slate-300 text-indigo-600">
 
                                 <span>{{ $academicYear->name }}</span>
@@ -178,7 +178,7 @@
                 <button type="submit"
                     class="rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700">
 
-                    {{ $assignRecorId ? 'update Assignment' : 'Assign' }}
+                    {{ $assignRecordId ? 'Update Assignment' : 'Assign' }}
 
                 </button>
 
@@ -256,7 +256,7 @@
                                 </button>
 
                                 <button wire:click="destroy({{ $sections->first()->id }})"
-                                    wire:confirm="Are you sure you want to delete this section?"
+                                    wire:confirm="Are you sure you want to delete this assignment?"
                                     class="rounded-lg p-2 text-red-600 hover:bg-red-50">
                                     🗑️
                                 </button>

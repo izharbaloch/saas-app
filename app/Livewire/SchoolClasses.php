@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Livewire\Concerns\HasCrudForm;
 use App\Models\SchoolClass;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -9,12 +10,12 @@ use Livewire\WithPagination;
 class SchoolClasses extends Component
 {
     use WithPagination;
+    use HasCrudForm;
 
     public string $name = '';
     public string $grade = '';
     public bool $status = true;
 
-    public bool $showForm = false;
     public ?int $classId = null;
 
     protected function rules(): array
@@ -32,7 +33,7 @@ class SchoolClasses extends Component
 
         SchoolClass::updateOrCreate(['id' => $this->classId], $data);
 
-        session()->flash('success', $this->classId ? 'Class updated successfully!' : 'Class created successfully!');
+        $this->flashSuccess($this->classId ? 'Class updated successfully!' : 'Class created successfully!');
 
         $this->resetForm();
     }
@@ -47,18 +48,12 @@ class SchoolClasses extends Component
         $this->resetValidation();
     }
 
-    public function openForm()
-    {
-        $this->resetForm();
-        $this->showForm = true;
-    }
-
     public function destroy($id)
     {
         $class = SchoolClass::findOrFail($id);
         $class->delete();
 
-        session()->flash('success', 'Class Delete successfully!');
+        $this->flashSuccess('Class deleted successfully!');
         $this->resetValidation();
     }
 

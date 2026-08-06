@@ -2,16 +2,18 @@
 
 namespace App\Livewire;
 
-use App\Models\Section as ModelsSection;
+use App\Livewire\Concerns\HasCrudForm;
+use App\Models\Section;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-class Section extends Component
+class Sections extends Component
 {
     use WithPagination;
+    use HasCrudForm;
+
     public $name = '';
     public $status = 1;
-    public $showForm = false;
     public $sectionId = null;
 
     public function rules(): array
@@ -25,15 +27,15 @@ class Section extends Component
     public function save()
     {
         $data = $this->validate();
-        ModelsSection::updateOrCreate(['id' => $this->sectionId], $data);
-        session()->flash('success', $this->sectionId ? 'Section Update successfully!' : 'Section created successfully!');
+        Section::updateOrCreate(['id' => $this->sectionId], $data);
+        $this->flashSuccess($this->sectionId ? 'Section updated successfully!' : 'Section created successfully!');
 
         $this->resetForm();
     }
 
     public function edit($id)
     {
-        $section = ModelsSection::find($id);
+        $section = Section::findOrFail($id);
         $this->fill($section->only('name', 'status'));
         $this->sectionId = $section->id;
 
@@ -41,20 +43,13 @@ class Section extends Component
         $this->resetValidation();
     }
 
-    public function openForm()
-    {
-        $this->showForm = true;
-    }
-
-
     public function destroy($id)
     {
-        $section = ModelsSection::findOrFail($id);
+        $section = Section::findOrFail($id);
         $section->delete();
 
-        session()->flash('success', 'Section Delete successfully!');
+        $this->flashSuccess('Section deleted successfully!');
         $this->resetValidation();
-
     }
 
     public function resetForm()
@@ -62,10 +57,11 @@ class Section extends Component
         $this->reset(['name', 'status', 'sectionId', 'showForm']);
         $this->resetValidation();
     }
+
     public function render()
     {
-        return view('livewire.section', [
-            'sections' => ModelsSection::latest()->paginate(10),
+        return view('livewire.sections', [
+            'sections' => Section::latest()->paginate(10),
         ]);
     }
 }
