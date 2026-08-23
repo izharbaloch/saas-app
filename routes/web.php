@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AcademicYearController;
 use App\Http\Controllers\ClassSectionController;
+use App\Http\Controllers\ClassSubjectController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SchoolClassController;
 use App\Http\Controllers\SchoolController;
@@ -26,6 +27,7 @@ Route::middleware(['identify.tenant', 'auth', 'verified'])->prefix('{school}')->
     Route::get('academic-years', [AcademicYearController::class, 'index'])->name('academic.years.index');
     Route::get('subjects', [SubjectController::class, 'index'])->name('subjects.index');
     Route::get('class-sections', [ClassSectionController::class, 'index'])->name('class.sections.index');
+    Route::get('class-subjects', [ClassSubjectController::class, 'index'])->name('class.subjects.index');
 });
 
 Route::middleware('auth')->group(function () {
