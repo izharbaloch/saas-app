@@ -11,7 +11,7 @@ class AcademicYear extends Model
 
     protected $fillable = ['school_id', 'name', 'start_date', 'end_date', 'is_current', 'status'];
 
-    public function casts(): array
+    protected function casts(): array
     {
         return [
             'is_current' => 'boolean',

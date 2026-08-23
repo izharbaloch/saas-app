@@ -16,11 +16,12 @@ return new class extends Migration
             $table->foreignId('school_id')->constrained();
             $table->foreignId('class_section_id')->constrained('class_sections')->cascadeOnDelete();
             $table->foreignId('subject_id')->constrained('subjects')->cascadeOnDelete();
-            $table->foreignId('class_teacher_id')
-                ->nullable()
-                ->constrained('teachers')
-                ->nullOnDelete();
+            // No FK constraint yet — the teachers module doesn't exist.
+            // Add ->constrained('teachers')->nullOnDelete() once it does.
+            $table->foreignId('class_teacher_id')->nullable();
             $table->timestamps();
+
+            $table->unique(['class_section_id', 'subject_id']);
         });
     }
 

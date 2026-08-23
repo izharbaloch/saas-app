@@ -5,9 +5,9 @@ namespace App\Livewire;
 use App\Livewire\Concerns\HasCrudForm;
 use App\Models\ClassSection;
 use App\Models\ClassSubject;
-use App\Models\SchoolClass;
 use App\Models\Subject;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Livewire\Component;
 
 class ClassSubjects extends Component
@@ -16,26 +16,28 @@ class ClassSubjects extends Component
 
     public $class_section_id = '';
     public $subject_ids = [];
-    public $teacher_id = '';
     public $assignRecordId = null;
 
     public function rules(): array
     {
+        $schoolId = session('current_school_id');
+
         return [
-            'class_section_id' => 'required',
-            'subject_ids' => 'required|array',
-            'teacher_id' => 'nullable'
+            'class_section_id' => ['required', Rule::exists('class_sections', 'id')->where('school_id', $schoolId)],
+            'subject_ids' => 'required|array|min:1',
+            'subject_ids.*' => Rule::exists('subjects', 'id')->where('school_id', $schoolId),
         ];
     }
 
     public function save()
     {
-        $data = $this->validate();
+        $this->validate();
+
         DB::transaction(function () {
             foreach ($this->subject_ids as $subjectId) {
-                ClassSubject::create([
+                ClassSubject::firstOrCreate([
                     'class_section_id' => $this->class_section_id,
-                    'subject_id' => $subjectId
+                    'subject_id' => $subjectId,
                 ]);
             }
         });
@@ -60,7 +62,7 @@ class ClassSubjects extends Component
     {
         $this->validate();
         DB::transaction(function () {
-            $records = ClassSubject::where('class_section_id', $this->assignRecordId)->delete();
+            ClassSubject::where('class_section_id', $this->assignRecordId)->delete();
 
             foreach ($this->subject_ids as $subjectId) {
                 ClassSubject::create([

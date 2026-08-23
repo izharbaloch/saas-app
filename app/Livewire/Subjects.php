@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Livewire\Concerns\HasCrudForm;
 use App\Models\Subject;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -9,12 +10,12 @@ use Livewire\WithPagination;
 class Subjects extends Component
 {
     use WithPagination;
+    use HasCrudForm;
 
     public $name = '';
     public $code = '';
     public $type = 'Core';
     public $status = 1;
-    public $showForm = false;
     public $subjectId = null;
 
     public function rules(): array
@@ -31,14 +32,14 @@ class Subjects extends Component
     {
         $data = $this->validate();
         Subject::updateOrCreate(['id' => $this->subjectId], $data);
-        session()->flash('success', $this->subjectId ? 'Subject updated successfully!' : 'Subject created successfully!');
+        $this->flashSuccess($this->subjectId ? 'Subject updated successfully!' : 'Subject created successfully!');
 
         $this->resetForm();
     }
 
     public function edit($id)
     {
-        $subject = Subject::find($id);
+        $subject = Subject::findOrFail($id);
         $this->fill($subject->only('name', 'code', 'type', 'status'));
         $this->subjectId = $subject->id;
 
@@ -46,17 +47,12 @@ class Subjects extends Component
         $this->resetValidation();
     }
 
-    public function openForm()
-    {
-        $this->showForm = true;
-    }
-
     public function destroy($id)
     {
         $subject = Subject::findOrFail($id);
         $subject->delete();
 
-        session()->flash('success', 'Subject deleted successfully!');
+        $this->flashSuccess('Subject deleted successfully!');
         $this->resetValidation();
     }
 

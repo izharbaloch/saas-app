@@ -11,10 +11,10 @@ class Subject extends Model
 
     protected $fillable = ['school_id','name','code','type','status'];
 
-    public function casts() : array
+    protected function casts(): array
     {
         return [
-            'status' => 'boolean'
+            'status' => 'boolean',
         ];
     }
 }

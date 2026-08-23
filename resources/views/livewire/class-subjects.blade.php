@@ -29,7 +29,7 @@
 
     @if ($showForm)
         {{-- Header --}}
-        <form wire:submit.prevent={{ $assignRecordId ? 'update' : 'save' }}>
+        <form wire:submit.prevent="{{ $assignRecordId ? 'update' : 'save' }}">
 
             <div class="rounded-2xl border border-slate-200 bg-white shadow-sm">
 
@@ -184,8 +184,8 @@
                         Subjects
                     </th>
 
-                    <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-slate-500">
-                        Teachers
+                    <th class="px-6 py-3 text-right text-xs font-semibold uppercase text-slate-500">
+                        Actions
                     </th>
 
                 </tr>

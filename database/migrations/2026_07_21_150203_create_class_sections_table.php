@@ -30,10 +30,9 @@ return new class extends Migration
                 ->constrained()
                 ->cascadeOnDelete();
 
-            $table->foreignId('class_teacher_id')
-                ->nullable()
-                ->constrained('teachers')
-                ->nullOnDelete();
+            // No FK constraint yet — the teachers module doesn't exist.
+            // Add ->constrained('teachers')->nullOnDelete() once it does.
+            $table->foreignId('class_teacher_id')->nullable();
 
             $table->timestamps();
 

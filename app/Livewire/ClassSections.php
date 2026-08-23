@@ -10,11 +10,9 @@ use App\Models\Section;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
-use Livewire\WithPagination;
 
 class ClassSections extends Component
 {
-    use WithPagination;
     use HasCrudForm;
 
     public $class_id = null;

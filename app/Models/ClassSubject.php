@@ -10,7 +10,7 @@ class ClassSubject extends Model
 {
     use BelongsToSchool;
 
-    protected $fillable = ['school_id', 'class_section_id', 'subject_id', 'teacher_id'];
+    protected $fillable = ['school_id', 'class_section_id', 'subject_id', 'class_teacher_id'];
 
     public function subject(): BelongsTo
     {
