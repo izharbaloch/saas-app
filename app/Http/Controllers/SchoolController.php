@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\School;
+use App\Models\Tenant;
 use Illuminate\Http\Request;
 
 class SchoolController extends Controller
@@ -12,7 +12,7 @@ class SchoolController extends Controller
      */
     public function index()
     {
-        $schools = School::all();
+        $schools = Tenant::all();
         return view('school.index', compact('schools'));
     }
 
@@ -36,7 +36,7 @@ class SchoolController extends Controller
 
         // dd($request->all());
 
-        School::create(
+        Tenant::create(
             [
                 'name' => $request->name,
                 'subdomain' => $request->subdomain,

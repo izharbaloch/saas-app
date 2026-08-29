@@ -9,7 +9,7 @@ Route::get('/', function () {
 });
 
 Route::resource('schools', SchoolController::class);
-Route::middleware(['identify.tenant', 'auth', 'verified'])->prefix('{school}')->group(function () {
+Route::middleware(['tenant', 'auth', 'verified'])->group(function () {
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
@@ -21,6 +21,9 @@ Route::middleware(['identify.tenant', 'auth', 'verified'])->prefix('{school}')->
     Route::view('subjects', 'subjects.index')->name('subjects.index');
     Route::view('class-sections', 'class_sections.index')->name('class.sections.index');
     Route::view('class-subjects', 'class_subjects.index')->name('class.subjects.index');
+
+    // Students route
+    Route::view('students', 'students.index')->name('students.index');
 });
 
 Route::middleware('auth')->group(function () {

@@ -2,15 +2,15 @@
 
 namespace App\Models;
 
-use App\Traits\BelongsToSchool;
+use App\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ClassSubject extends Model
 {
-    use BelongsToSchool;
+    use BelongsToTenant;
 
-    protected $fillable = ['school_id', 'class_section_id', 'subject_id', 'class_teacher_id'];
+    protected $fillable = ['tenant_id', 'class_section_id', 'subject_id', 'class_teacher_id'];
 
     public function subject(): BelongsTo
     {

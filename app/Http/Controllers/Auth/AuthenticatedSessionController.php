@@ -28,9 +28,7 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->route('dashboard', [
-            'school' => session('current_school_slug')
-        ]);
+        return redirect()->route('dashboard');
     }
 
     /**

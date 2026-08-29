@@ -7,6 +7,7 @@ use App\Models\AcademicYear;
 use App\Models\ClassSection;
 use App\Models\SchoolClass;
 use App\Models\Section;
+use App\Models\Tenant;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
@@ -23,15 +24,15 @@ class ClassSections extends Component
 
     protected function rules(): array
     {
-        $schoolId = session('current_school_id');
+        $tenantId = Tenant::current()?->id;
 
         return [
-            'class_id' => ['required', Rule::exists('school_classes', 'id')->where('school_id', $schoolId)],
+            'class_id' => ['required', Rule::exists('school_classes', 'id')->where('tenant_id', $tenantId)],
             'section_ids' => 'required|array|min:1',
-            'section_ids.*' => Rule::exists('sections', 'id')->where('school_id', $schoolId),
+            'section_ids.*' => Rule::exists('sections', 'id')->where('tenant_id', $tenantId),
 
             'academic_year_ids' => 'required|array|min:1',
-            'academic_year_ids.*' => Rule::exists('academic_years', 'id')->where('school_id', $schoolId),
+            'academic_year_ids.*' => Rule::exists('academic_years', 'id')->where('tenant_id', $tenantId),
         ];
     }
 

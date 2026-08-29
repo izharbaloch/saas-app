@@ -6,6 +6,7 @@ use App\Livewire\Concerns\HasCrudForm;
 use App\Models\ClassSection;
 use App\Models\ClassSubject;
 use App\Models\Subject;
+use App\Models\Tenant;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
@@ -20,12 +21,12 @@ class ClassSubjects extends Component
 
     public function rules(): array
     {
-        $schoolId = session('current_school_id');
+        $tenantId = Tenant::current()?->id;
 
         return [
-            'class_section_id' => ['required', Rule::exists('class_sections', 'id')->where('school_id', $schoolId)],
+            'class_section_id' => ['required', Rule::exists('class_sections', 'id')->where('tenant_id', $tenantId)],
             'subject_ids' => 'required|array|min:1',
-            'subject_ids.*' => Rule::exists('subjects', 'id')->where('school_id', $schoolId),
+            'subject_ids.*' => Rule::exists('subjects', 'id')->where('tenant_id', $tenantId),
         ];
     }
 

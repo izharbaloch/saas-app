@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('class_subjects', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('school_id')->constrained();
+            $table->foreignId('tenant_id')->constrained();
             $table->foreignId('class_section_id')->constrained('class_sections')->cascadeOnDelete();
             $table->foreignId('subject_id')->constrained('subjects')->cascadeOnDelete();
             // No FK constraint yet — the teachers module doesn't exist.

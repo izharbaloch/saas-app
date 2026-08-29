@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Spatie\Multitenancy\Models\Tenant as SpatieTenant;
 
-class School extends Model
+class Tenant extends SpatieTenant
 {
     protected $fillable = ['name', 'subdomain', 'domain', 'is_active'];
 }

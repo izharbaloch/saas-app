@@ -2,15 +2,15 @@
 
 namespace App\Models;
 
-use App\Traits\BelongsToSchool;
+use App\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ClassSection extends Model
 {
-    use BelongsToSchool;
+    use BelongsToTenant;
     protected $fillable = [
-        'school_id',
+        'tenant_id',
         'class_id',
         'section_id',
         'academic_year_id',

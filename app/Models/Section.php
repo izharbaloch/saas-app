@@ -2,13 +2,13 @@
 
 namespace App\Models;
 
-use App\Traits\BelongsToSchool;
+use App\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Model;
 
 class Section extends Model
 {
-    use BelongsToSchool;
-    protected $fillable = ['school_id', 'name', 'status'];
+    use BelongsToTenant;
+    protected $fillable = ['tenant_id', 'name', 'status'];
 
     protected function casts(): array
     {

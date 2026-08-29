@@ -2,14 +2,14 @@
 
 namespace App\Models;
 
-use App\Traits\BelongsToSchool;
+use App\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Model;
 
 class Subject extends Model
 {
-    use BelongsToSchool;
+    use BelongsToTenant;
 
-    protected $fillable = ['school_id','name','code','type','status'];
+    protected $fillable = ['tenant_id','name','code','type','status'];
 
     protected function casts(): array
     {
