@@ -47,4 +47,9 @@ class Student extends Model
     {
         return $this->belongsTo(ClassSection::class, 'class_section_id');
     }
+
+    public function attachments()
+    {
+        return $this->morphMany(Attachment::class, 'attachable');
+    }
 }

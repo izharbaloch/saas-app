@@ -28,7 +28,7 @@
 
     @if ($showForm)
         {{-- Student Form --}}
-        <form wire:submit="save">
+        <form wire:submit="{{ $studentId ? 'update' : 'save' }}">
             <div class="space-y-6">
 
                 {{-- ========================================================= --}}
@@ -50,7 +50,7 @@
                             <label class="mb-2 block text-sm font-semibold text-slate-700">
                                 Student Photo
                             </label>
-                            <input type="file" accept="image/*"
+                            <input type="file" accept="image/*" wire:model="student_profile_photo"
                                 class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm
                                 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500">
                         </div>
@@ -74,9 +74,10 @@
                                 Student ID / Admission No.
                                 <span class="text-red-500">*</span>
                             </label>
-                            <input type="text" wire:model="admission_no" placeholder="Enter admission number"
+                            <input type="text" wire:model="admission_no" placeholder="Admission number auto genrate"
                                 class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm
-                                            focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500">
+                                            focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500"
+                                readonly>
                             @error('admission_no')
                                 <p class="text-xs text-red-600">{{ $message }}</p>
                             @enderror
@@ -87,9 +88,10 @@
                             <label class="mb-2 block text-sm font-semibold text-slate-700">
                                 Roll Number
                             </label>
-                            <input type="text" wire:model="roll_no" placeholder="Enter roll number"
+                            <input type="text" wire:model="roll_no" placeholder="Roll number auto genrate"
                                 class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm
-                                focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500">
+                                focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500"
+                                readonly>
                         </div>
 
                         {{-- Father Name --}}
@@ -540,7 +542,7 @@
                             <label class="mb-2 block text-sm font-semibold text-slate-700">
                                 B-Form / CNIC Copy
                             </label>
-                            <input type="file" accept=".jpg,.jpeg,.png,.pdf"
+                            <input type="file" wire:model="b_form" accept=".jpg,.jpeg,.png,.pdf"
                                 class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm
                                 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500">
                         </div>
@@ -550,7 +552,7 @@
                             <label class="mb-2 block text-sm font-semibold text-slate-700">
                                 Birth Certificate
                             </label>
-                            <input type="file" accept=".jpg,.jpeg,.png,.pdf"
+                            <input type="file" wire:model="birth_certificate" accept=".jpg,.jpeg,.png,.pdf"
                                 class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm
                                 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500">
                         </div>
@@ -560,17 +562,17 @@
                             <label class="mb-2 block text-sm font-semibold text-slate-700">
                                 Previous School / Leaving Certificate
                             </label>
-                            <input type="file" accept=".jpg,.jpeg,.png,.pdf"
+                            <input type="file" wire:model="leaving_certificate" accept=".jpg,.jpeg,.png,.pdf"
                                 class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm
                                 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500">
                         </div>
 
-                        {{-- Student Photo --}}
+                        {{-- Student Guardian CNIC --}}
                         <div>
                             <label class="mb-2 block text-sm font-semibold text-slate-700">
-                                Student Photograph
+                                Student Guardian CNIC
                             </label>
-                            <input type="file" accept="image/*"
+                            <input type="file" wire:model="guardian_cnic" accept=".jpg,.jpeg,.png,.pdf"
                                 class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm
                                 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500">
                         </div>
@@ -580,7 +582,8 @@
                             <label class="mb-2 block text-sm font-semibold text-slate-700">
                                 Other Documents
                             </label>
-                            <input type="file" multiple accept=".jpg,.jpeg,.png,.pdf,.doc,.docx"
+                            <input type="file" wire:model="other_documents" multiple
+                                accept=".jpg,.jpeg,.png,.pdf,.doc,.docx"
                                 class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm
                                 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500">
 
@@ -589,6 +592,16 @@
                                 JPG, PNG, PDF, DOC, DOCX.
                             </p>
                         </div>
+
+                        @if ($studenAttachments)
+                            @foreach ($studenAttachments as $studenAttachment)
+                                <div>
+
+                                    <img src="{{ asset('storage/' . $studenAttachment->file_path) }}" alt=""
+                                        width="50">
+                                </div>
+                            @endforeach
+                        @endif
 
                     </div>
                 </div>
@@ -607,10 +620,18 @@
                         Reset
                     </button>
 
-                    <button type="submit"
+                    <button type="submit" wire:loading.attr="disabled"
+                        wire:target="b_form,birth_certificate,leaving_certificate,guardian_cnic,student_profile_photo,other_documents,save"
                         class="rounded-xl bg-indigo-600 px-6 py-2.5 text-sm
-                        font-semibold text-white hover:bg-indigo-700">
-                        Save Student
+                        font-semibold text-white hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60">
+                        <span wire:loading.remove
+                            wire:target="b_form,birth_certificate,leaving_certificate,guardian_cnic,student_profile_photo,other_documents">
+                            {{ $studentId ? 'Update Student' : 'Save Student' }}
+                        </span>
+                        <span wire:loading
+                            wire:target="b_form,birth_certificate,leaving_certificate,guardian_cnic,student_profile_photo,other_documents">
+                            Uploading documents...
+                        </span>
                     </button>
 
                 </div>
@@ -662,7 +683,8 @@
                             <td class="px-6 py-4 text-slate-600">{{ $student->father_name }}</td>
                             <td class="px-6 py-4">
                                 <div class="flex justify-end gap-2">
-                                    <button class="rounded-lg p-2 text-amber-600 hover:bg-amber-50">
+                                    <button type="submit" wire:click="edit({{ $student->id }})"
+                                        class="rounded-lg p-2 text-amber-600 hover:bg-amber-50">
                                         ✏️
                                     </button>
                                     <button class="rounded-lg p-2 text-red-600 hover:bg-red-50">
@@ -681,6 +703,7 @@
                 </tbody>
 
             </table>
+            {{ $students->links() }}
         </div>
 
     </div>
