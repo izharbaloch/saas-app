@@ -596,7 +596,7 @@
                         @if ($studenAttachments)
                             @foreach ($studenAttachments as $studenAttachment)
                                 <div>
-
+                                    <p>{{ $studenAttachment->category }}</p>
                                     <img src="{{ asset('storage/' . $studenAttachment->file_path) }}" alt=""
                                         width="50">
                                 </div>
@@ -683,11 +683,13 @@
                             <td class="px-6 py-4 text-slate-600">{{ $student->father_name }}</td>
                             <td class="px-6 py-4">
                                 <div class="flex justify-end gap-2">
-                                    <button type="submit" wire:click="edit({{ $student->id }})"
+                                    <button wire:click="edit({{ $student->id }})"
                                         class="rounded-lg p-2 text-amber-600 hover:bg-amber-50">
                                         ✏️
                                     </button>
-                                    <button class="rounded-lg p-2 text-red-600 hover:bg-red-50">
+                                    <button wire:click="destroy({{ $student->id }})"
+                                        wire:confirm="Are you sure you want to delete this assignment?"
+                                        class="rounded-lg p-2 text-red-600 hover:bg-red-50">
                                         🗑️
                                     </button>
                                 </div>

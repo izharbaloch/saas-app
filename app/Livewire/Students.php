@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Livewire\Concerns\HasCrudForm;
 use App\Models\ClassSection;
 use App\Models\Student;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Livewire\WithPagination;
@@ -256,8 +257,80 @@ class Students extends Component
             'medical_conditions' => $this->medical_conditions,
         ]);
 
+        $attachments = [
+            'b_form' => $this->b_form,
+            'birth_certificate' => $this->birth_certificate,
+            'leaving_certificate' => $this->leaving_certificate,
+            'guardian_cnic' => $this->guardian_cnic,
+            'student_profile_photo' => $this->student_profile_photo,
+        ];
+
+        foreach ($attachments as $category => $file) {
+
+            if (!$file) {
+                continue;
+            }
+
+            $oldFile = $student->attachments->where('category', $category)->first();
+            if ($oldFile) {
+                if ($oldFile->file_path && Storage::disk('public')->exists($oldFile->file_path)) {
+                    Storage::disk('public')->delete($oldFile->file_path);
+                }
+                $oldFile->delete();
+            }
+
+            $path = $file->store('attachments/students', 'public');
+
+            $student->attachments()->create([
+                'category' => $category,
+                'file_name' => $file->getClientOriginalName(),
+                'file_path' => $path,
+                'mime_type' => $file->getMimeType(),
+                'file_size' => $file->getSize(),
+            ]);
+        }
+
+        if ($this->other_documents) {
+
+            foreach ($this->other_documents as $file) {
+
+                if (!$file) {
+                    continue;
+                }
+
+                $path = $file->store('attachments/students', 'public');
+
+                $student->attachments()->create([
+                    'category' => 'other_documents',
+                    'file_name' => $file->getClientOriginalName(),
+                    'file_path' => $path,
+                    'mime_type' => $file->getMimeType(),
+                    'file_size' => $file->getSize(),
+                ]);
+            }
+        }
+
         $this->flashSuccess('Student Update Successfully!');
         $this->showForm = false;
+    }
+
+    public function destroy($id)
+    {
+        $student = Student::findOrFail($id);
+
+        foreach ($student->attachments as $attachment) {
+            if ($attachment->file_path && Storage::disk('public')->exists($attachment->file_path)) {
+                Storage::disk('public')->delete($attachment->file_path);
+            }
+
+            $attachment->delete();
+        }
+
+        $student->delete();
+
+        $this->flashSuccess('Student Delete Successfully!');
+
+        $this->resetValidation();
     }
 
     public function resetForm()
