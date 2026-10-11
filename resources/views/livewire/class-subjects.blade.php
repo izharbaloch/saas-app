@@ -166,6 +166,7 @@
             </h3>
         </div>
 
+        <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-slate-200">
 
             <thead class="bg-slate-50">
@@ -226,6 +227,7 @@
             </tbody>
 
         </table>
+        </div>
 
     </div>
 

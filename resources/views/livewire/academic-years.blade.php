@@ -137,6 +137,11 @@
     {{-- Table --}}
     <div class="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
 
+        <div class="border-b border-slate-100 px-6 py-4">
+            <h3 class="font-semibold text-slate-700">Academic Years List</h3>
+        </div>
+
+        <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-slate-200">
 
             <thead class="bg-slate-50">
@@ -255,6 +260,7 @@
             </tbody>
 
         </table>
+        </div>
 
         @if (method_exists($academicYears, 'links'))
             <div class="border-t border-slate-200 p-4">

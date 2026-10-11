@@ -55,45 +55,91 @@ class Students extends Component
 
     public $studentId = null;
     public $studenAttachments = [];
+
     protected function rules(): array
     {
         return [
-            'name' => 'required',
-            'father_name' => 'required',
-            'gender' => 'required',
-            'dob' => 'required',
-            'father_contact_numer' => 'required',
-            'address' => 'required',
-            'admission_date' => 'required',
-            'admission_type' => 'required',
-            'b_form' => 'nullable|file|max:5120',
-            'birth_certificate' => 'nullable|file|max:5120',
-            'leaving_certificate' => 'nullable|file|max:5120',
-            'guardian_cnic' => 'nullable|file|max:5120',
+            'name' => 'required|string|max:255',
+            'father_name' => 'required|string|max:255',
+            'gender' => 'required|in:male,female,other',
+            'dob' => 'required|date',
+            'b_form_no' => 'nullable|string|max:50',
+            'religion' => 'nullable|in:muslim,christian,hindu,other',
+            'blood_group' => 'nullable|in:A+,A-,B+,B-,AB+,AB-,O+,O-',
+            'nationality' => 'nullable|string|max:100',
+            'previous_school' => 'nullable|string|max:255',
+            'father_occupation' => 'nullable|string|max:255',
+            'father_contact_numer' => 'required|string|max:30',
+            'mother_name' => 'nullable|string|max:255',
+            'mother_contact_numer' => 'nullable|string|max:30',
+            'guardian_name' => 'nullable|string|max:255',
+            'guardian_relation' => 'nullable|string|max:100',
+            'guardian_contact_numer' => 'nullable|string|max:30',
+            'guardian_email' => 'nullable|email|max:255',
+            'address' => 'required|string|max:2000',
+            'city' => 'nullable|string|max:100',
+            'postal_code' => 'nullable|string|max:20',
+            'admission_date' => 'required|date',
+            'class_section_id' => 'nullable|integer',
+            'admission_type' => 'required|in:New Admission,Transfer,Re-Admission',
+            'previous_class' => 'nullable|string|max:100',
+            'transport_required' => 'nullable|boolean',
+            'emergency_contact_name' => 'nullable|string|max:255',
+            'emergency_contact_number' => 'nullable|string|max:30',
+            'medical_conditions' => 'nullable|string|max:2000',
+
+            // These formats match the file types allowed by the form.
+            'b_form' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'birth_certificate' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'leaving_certificate' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'guardian_cnic' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
             'student_profile_photo' => 'nullable|image|max:5120',
-            'other_documents.*' => 'nullable|file|max:5120',
+            'other_documents' => 'nullable|array',
+            'other_documents.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:5120',
         ];
     }
 
-    public function generateRollNo()
+    /**
+     * Generate a roll number based on the highest existing roll number
+     * in the selected class/section, rather than using the global student ID.
+     */
+    public function generateRollNo(): void
     {
-        $lastRollNo = Student::where('class_section_id', $this->class_section_id)->orderByDesc('id')->value('id');
+        $query = Student::query();
 
-        $number = $lastRollNo ? $lastRollNo + 1 : 1;
+        if ($this->class_section_id) {
+            $query->where('class_section_id', $this->class_section_id);
+        }
 
-        $this->roll_no = 'RN-' . str_pad($number, 3, '0', STR_PAD_LEFT);
+        $lastNumber = $query->pluck('roll_no')
+            ->map(function ($rollNo) {
+                return preg_match('/^RN-(\d+)$/', (string) $rollNo, $matches)
+                    ? (int) $matches[1]
+                    : 0;
+            })
+            ->max() ?? 0;
+
+        $this->roll_no = 'RN-' . str_pad((string) ($lastNumber + 1), 3, '0', STR_PAD_LEFT);
     }
 
-    public function generateAdmissionNo()
+    /**
+     * Generate the next admission number from existing admission numbers.
+     */
+    public function generateAdmissionNo(): void
     {
-        $lastAdmissionNo = Student::orderByDesc('id')->value('id');
+        $lastNumber = Student::query()
+            ->pluck('admission_no')
+            ->map(function ($admissionNo) {
+                return preg_match('/^ADM-(\d+)$/', (string) $admissionNo, $matches)
+                    ? (int) $matches[1]
+                    : 0;
+            })
+            ->max() ?? 0;
 
-        $number = $lastAdmissionNo ? $lastAdmissionNo + 1 : 1;
-
-        $this->admission_no = 'ADM-' . str_pad($number, 3, '0', STR_PAD_LEFT);
+        $this->admission_no = 'ADM-' . str_pad((string) ($lastNumber + 1), 3, '0', STR_PAD_LEFT);
     }
 
-    public function save()
+    public function save(): void
     {
         $this->validate();
 
@@ -126,65 +172,25 @@ class Students extends Component
             'admission_date' => $this->admission_date,
             'class_section_id' => $this->class_section_id,
             'admission_type' => $this->admission_type,
+            'previous_class' => $this->previous_class,
             'transport_required' => $this->transport_required,
             'emergency_contact_name' => $this->emergency_contact_name,
             'emergency_contact_number' => $this->emergency_contact_number,
             'medical_conditions' => $this->medical_conditions,
         ]);
 
-        $attachments = [
-            'b_form' => $this->b_form,
-            'birth_certificate' => $this->birth_certificate,
-            'leaving_certificate' => $this->leaving_certificate,
-            'guardian_cnic' => $this->guardian_cnic,
-            'student_profile_photo' => $this->student_profile_photo,
-        ];
-
-        foreach ($attachments as $category => $file) {
-
-            if (!$file) {
-                continue;
-            }
-            $path = $file->store('attachments/students', 'public');
-
-            $student->attachments()->create([
-                'category' => $category,
-                'file_name' => $file->getClientOriginalName(),
-                'file_path' => $path,
-                'mime_type' => $file->getMimeType(),
-                'file_size' => $file->getSize(),
-            ]);
-        }
-
-        if ($this->other_documents) {
-
-            foreach ($this->other_documents as $file) {
-
-                if (!$file) {
-                    continue;
-                }
-
-                $path = $file->store('attachments/students', 'public');
-
-                $student->attachments()->create([
-                    'category' => 'other_documents',
-                    'file_name' => $file->getClientOriginalName(),
-                    'file_path' => $path,
-                    'mime_type' => $file->getMimeType(),
-                    'file_size' => $file->getSize(),
-                ]);
-            }
-        }
+        $this->storeAttachments($student);
 
         $this->flashSuccess('Student Created Successfully!');
-
+        $this->resetForm();
         $this->showForm = false;
     }
 
-    public function edit($id)
+    public function edit($id): void
     {
-        $student = Student::findOrFail($id);
-        $data = $student->only(
+        $student = Student::with('attachments')->findOrFail($id);
+
+        $this->fill($student->only(
             'roll_no',
             'admission_no',
             'name',
@@ -215,20 +221,19 @@ class Students extends Component
             'emergency_contact_name',
             'emergency_contact_number',
             'medical_conditions',
-        );
-
-        $this->fill($data);
+        ));
 
         $this->studenAttachments = $student->attachments;
         $this->studentId = $student->id;
+        $this->resetValidation();
         $this->showForm = true;
     }
 
-    public function update()
+    public function update(): void
     {
         $this->validate();
 
-        $student = Student::findOrFail($this->studentId);
+        $student = Student::with('attachments')->findOrFail($this->studentId);
 
         $student->update([
             'name' => $this->name,
@@ -254,12 +259,26 @@ class Students extends Component
             'admission_date' => $this->admission_date,
             'class_section_id' => $this->class_section_id,
             'admission_type' => $this->admission_type,
+            'previous_class' => $this->previous_class,
             'transport_required' => $this->transport_required,
             'emergency_contact_name' => $this->emergency_contact_name,
             'emergency_contact_number' => $this->emergency_contact_number,
             'medical_conditions' => $this->medical_conditions,
         ]);
 
+        $this->storeAttachments($student, true);
+
+        $this->flashSuccess('Student Updated Successfully!');
+        $this->resetForm();
+        $this->showForm = false;
+    }
+
+    /**
+     * Save uploaded files. On update, replace the existing single-file category
+     * only after the new file has been stored successfully.
+     */
+    private function storeAttachments(Student $student, bool $replaceExisting = false): void
+    {
         $attachments = [
             'b_form' => $this->b_form,
             'birth_certificate' => $this->birth_certificate,
@@ -269,20 +288,29 @@ class Students extends Component
         ];
 
         foreach ($attachments as $category => $file) {
-
             if (!$file) {
                 continue;
             }
 
-            $oldFile = $student->attachments->where('category', $category)->first();
-            if ($oldFile) {
-                if ($oldFile->file_path && Storage::disk('public')->exists($oldFile->file_path)) {
-                    Storage::disk('public')->delete($oldFile->file_path);
-                }
-                $oldFile->delete();
+            $path = $file->store('attachments/students', 'public');
+
+            if (!$path) {
+                throw new \RuntimeException('The uploaded file could not be saved.');
             }
 
-            $path = $file->store('attachments/students', 'public');
+            if ($replaceExisting) {
+                $oldAttachment = $student->attachments
+                    ->firstWhere('category', $category);
+
+                if ($oldAttachment) {
+                    $oldPath = $oldAttachment->file_path;
+                    $oldAttachment->delete();
+
+                    if ($oldPath && Storage::disk('public')->exists($oldPath)) {
+                        Storage::disk('public')->delete($oldPath);
+                    }
+                }
+            }
 
             $student->attachments()->create([
                 'category' => $category,
@@ -293,50 +321,47 @@ class Students extends Component
             ]);
         }
 
-        if ($this->other_documents) {
-
-            foreach ($this->other_documents as $file) {
-
-                if (!$file) {
-                    continue;
-                }
-
-                $path = $file->store('attachments/students', 'public');
-
-                $student->attachments()->create([
-                    'category' => 'other_documents',
-                    'file_name' => $file->getClientOriginalName(),
-                    'file_path' => $path,
-                    'mime_type' => $file->getMimeType(),
-                    'file_size' => $file->getSize(),
-                ]);
+        foreach ($this->other_documents ?? [] as $file) {
+            if (!$file) {
+                continue;
             }
-        }
 
-        $this->flashSuccess('Student Update Successfully!');
-        $this->showForm = false;
+            $path = $file->store('attachments/students', 'public');
+
+            if (!$path) {
+                throw new \RuntimeException('The uploaded file could not be saved.');
+            }
+
+            $student->attachments()->create([
+                'category' => 'other_documents',
+                'file_name' => $file->getClientOriginalName(),
+                'file_path' => $path,
+                'mime_type' => $file->getMimeType(),
+                'file_size' => $file->getSize(),
+            ]);
+        }
     }
 
-    public function destroy($id)
+    public function destroy($id): void
     {
-        $student = Student::findOrFail($id);
+        $student = Student::with('attachments')->findOrFail($id);
 
         foreach ($student->attachments as $attachment) {
-            if ($attachment->file_path && Storage::disk('public')->exists($attachment->file_path)) {
-                Storage::disk('public')->delete($attachment->file_path);
-            }
-
+            $path = $attachment->file_path;
             $attachment->delete();
+
+            if ($path && Storage::disk('public')->exists($path)) {
+                Storage::disk('public')->delete($path);
+            }
         }
 
         $student->delete();
 
-        $this->flashSuccess('Student Delete Successfully!');
-
+        $this->flashSuccess('Student Deleted Successfully!');
         $this->resetValidation();
     }
 
-    public function resetForm()
+    public function resetForm(): void
     {
         $this->reset([
             'roll_no',
@@ -378,13 +403,19 @@ class Students extends Component
             'studentId',
             'studenAttachments',
         ]);
+
+        $this->resetValidation();
     }
 
     public function render()
     {
         return view('livewire.students', [
             'classSections' => ClassSection::with('schoolClass', 'section', 'academicYear')->get(),
-            'students' => Student::with(['classSection', 'attachments'])->paginate(10),
+            'students' => Student::with([
+                'classSection.schoolClass',
+                'classSection.section',
+                'attachments',
+            ])->paginate(10),
         ]);
     }
 }
