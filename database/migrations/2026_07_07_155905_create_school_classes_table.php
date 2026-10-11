@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('school_classes', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('tenant_id')->constrained()->cascadeOnDelete();
             $table->string('name');
             $table->string('grade');
             $table->boolean('status')->default(1);

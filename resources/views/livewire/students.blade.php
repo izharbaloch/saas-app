@@ -593,17 +593,51 @@
                             </p>
                         </div>
 
-                        @if ($studenAttachments)
-                            @foreach ($studenAttachments as $studenAttachment)
-                                <div>
-                                    <p>{{ $studenAttachment->category }}</p>
-                                    <img src="{{ asset('storage/' . $studenAttachment->file_path) }}" alt=""
-                                        width="50">
-                                </div>
-                            @endforeach
-                        @endif
-
                     </div>
+
+                    @if ($studenAttachments && count($studenAttachments))
+                        <div class="border-t border-slate-100 px-6 py-5">
+                            <h3 class="mb-3 text-sm font-semibold text-slate-700">
+                                Uploaded Attachments
+                            </h3>
+
+                            <div class="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                                @foreach ($studenAttachments as $studenAttachment)
+                                    <a href="{{ asset('storage/' . $studenAttachment->file_path) }}"
+                                        target="_blank" rel="noopener"
+                                        class="group flex flex-col overflow-hidden rounded-xl border border-slate-200 bg-slate-50 transition hover:border-indigo-300 hover:shadow-md">
+
+                                        <div class="flex h-28 items-center justify-center overflow-hidden bg-white">
+                                            @if (str_starts_with((string) $studenAttachment->mime_type, 'image/'))
+                                                <img src="{{ asset('storage/' . $studenAttachment->file_path) }}"
+                                                    alt="{{ $studenAttachment->file_name }}"
+                                                    class="h-full w-full object-cover transition group-hover:scale-105">
+                                            @else
+                                                <svg class="h-12 w-12 text-slate-400" fill="none" viewBox="0 0 24 24"
+                                                    stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="1.5"
+                                                        d="M7 3h7l5 5v13a1 1 0 01-1 1H7a1 1 0 01-1-1V4a1 1 0 011-1z" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="1.5" d="M14 3v5h5" />
+                                                </svg>
+                                            @endif
+                                        </div>
+
+                                        <div class="border-t border-slate-200 bg-white px-3 py-2">
+                                            <p class="truncate text-xs font-medium text-slate-700"
+                                                title="{{ $studenAttachment->file_name }}">
+                                                {{ $studenAttachment->file_name }}
+                                            </p>
+                                            <p class="mt-0.5 text-[11px] uppercase tracking-wide text-indigo-500">
+                                                {{ str_replace('_', ' ', $studenAttachment->category) }}
+                                            </p>
+                                        </div>
+                                    </a>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
                 </div>
 
 

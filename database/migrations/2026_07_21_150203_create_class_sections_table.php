@@ -14,10 +14,6 @@ return new class extends Migration
         Schema::create('class_sections', function (Blueprint $table) {
             $table->id();
 
-            $table->foreignId('tenant_id')
-                ->constrained()
-                ->cascadeOnDelete();
-
             $table->foreignId('class_id')
                 ->constrained('school_classes')
                 ->cascadeOnDelete();
@@ -37,11 +33,10 @@ return new class extends Migration
             $table->timestamps();
 
             $table->unique([
-                'tenant_id',
                 'class_id',
                 'section_id',
                 'academic_year_id'
-            ], 'class_sections_tenant_class_section_year_unique');
+            ], 'class_sections_class_section_year_unique');
         });
     }
 

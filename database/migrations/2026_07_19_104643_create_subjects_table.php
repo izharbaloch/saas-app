@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('subjects', function (Blueprint $table) {
             $table->id();
 
-            $table->foreignId('tenant_id')->constrained()->cascadeOnDelete();
 
             $table->string('name');              // English
             $table->string('code')->nullable();  // ENG101, MATH01

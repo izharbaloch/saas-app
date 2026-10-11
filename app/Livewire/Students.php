@@ -70,6 +70,7 @@ class Students extends Component
             'birth_certificate' => 'nullable|file|max:5120',
             'leaving_certificate' => 'nullable|file|max:5120',
             'guardian_cnic' => 'nullable|file|max:5120',
+            'student_profile_photo' => 'nullable|image|max:5120',
             'other_documents.*' => 'nullable|file|max:5120',
         ];
     }
@@ -225,6 +226,8 @@ class Students extends Component
 
     public function update()
     {
+        $this->validate();
+
         $student = Student::findOrFail($this->studentId);
 
         $student->update([
@@ -372,6 +375,8 @@ class Students extends Component
             'guardian_cnic',
             'student_profile_photo',
             'other_documents',
+            'studentId',
+            'studenAttachments',
         ]);
     }
 
