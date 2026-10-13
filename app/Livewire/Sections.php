@@ -15,6 +15,12 @@ class Sections extends Component
     public $name = '';
     public $status = 1;
     public $sectionId = null;
+    public $search = '';
+
+    public function updatingSearch()
+    {
+        $this->resetPage();
+    }
 
     public function rules(): array
     {
@@ -60,8 +66,11 @@ class Sections extends Component
 
     public function render()
     {
+        $sections = Section::query()->when($this->search, function ($query) {
+            $query->where('name', 'like', '%' . $this->search . '%');
+        })->latest()->paginate(10);
         return view('livewire.sections', [
-            'sections' => Section::latest()->paginate(10),
+            'sections' => $sections,
         ]);
     }
 }

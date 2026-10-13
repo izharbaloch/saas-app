@@ -88,102 +88,116 @@
     {{-- Table --}}
     <div class="mt-6 rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
 
-        <div class="border-b border-slate-100 px-6 py-4">
+        <div
+            class="flex flex-col gap-3 border-b border-slate-100 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
+
             <h3 class="font-semibold text-slate-700">Sections List</h3>
+
+            <div class="relative w-full sm:w-72">
+                <svg class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+                    fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                </svg>
+                <input type="text" wire:model.live.debounce.300ms="search" placeholder="Search..."
+                    class="w-full rounded-xl border border-slate-300 bg-white py-2 pl-9 pr-3 text-sm text-slate-700 placeholder-slate-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500">
+            </div>
+
         </div>
 
         <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-slate-200">
+            <table class="min-w-full divide-y divide-slate-200">
 
-            <thead class="bg-slate-50">
-                <tr>
-                    <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-slate-500">
-                        Section Name
-                    </th>
-
-                    <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-slate-500">
-                        Created At
-                    </th>
-
-                    <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-slate-500">
-                        Status
-                    </th>
-
-                    <th class="px-6 py-3 text-right text-xs font-semibold uppercase text-slate-500">
-                        Actions
-                    </th>
-                </tr>
-            </thead>
-
-            <tbody class="divide-y divide-slate-100">
-
-                @forelse($sections as $section)
-                    <tr class="hover:bg-slate-50">
-
-                        <td class="px-6 py-4 font-medium text-slate-800">
-                            {{ $section->name }}
-                        </td>
-
-                        <td class="px-6 py-4 text-sm text-slate-600">
-                            {{ $section->created_at->format('d M Y') }}
-                        </td>
-
-                        <td class="px-6 py-4">
-                            @if ($section->status)
-                                <span class="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
-                                    Active
-                                </span>
-                            @else
-                                <span class="rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-700">
-                                    Inactive
-                                </span>
-                            @endif
-                        </td>
-
-                        <td class="px-6 py-4">
-                            <div class="flex justify-end gap-2">
-
-                                <button wire:click="edit({{ $section->id }})"
-                                    class="rounded-lg p-2 text-amber-600 hover:bg-amber-50">
-                                    ✏️
-                                </button>
-
-                                <button wire:click="destroy({{ $section->id }})"
-                                    wire:confirm="Are you sure you want to delete this section?"
-                                    class="rounded-lg p-2 text-red-600 hover:bg-red-50">
-                                    🗑️
-                                </button>
-
-                            </div>
-                        </td>
-
-                    </tr>
-
-                @empty
-
+                <thead class="bg-slate-50">
                     <tr>
-                        <td colspan="4" class="py-16 text-center">
+                        <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-slate-500">
+                            Section Name
+                        </th>
 
-                            <h3 class="text-lg font-semibold text-slate-700">
-                                No Sections Found
-                            </h3>
+                        <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-slate-500">
+                            Created At
+                        </th>
 
-                            <p class="mt-2 text-sm text-slate-500">
-                                Create your first section to get started.
-                            </p>
+                        <th class="px-6 py-3 text-left text-xs font-semibold uppercase text-slate-500">
+                            Status
+                        </th>
 
-                            <button wire:click="openForm"
-                                class="mt-5 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700">
-                                + Add Section
-                            </button>
-
-                        </td>
+                        <th class="px-6 py-3 text-right text-xs font-semibold uppercase text-slate-500">
+                            Actions
+                        </th>
                     </tr>
-                @endforelse
+                </thead>
 
-            </tbody>
+                <tbody class="divide-y divide-slate-100">
 
-        </table>
+                    @forelse($sections as $section)
+                        <tr class="hover:bg-slate-50">
+
+                            <td class="px-6 py-4 font-medium text-slate-800">
+                                {{ $section->name }}
+                            </td>
+
+                            <td class="px-6 py-4 text-sm text-slate-600">
+                                {{ $section->created_at->format('d M Y') }}
+                            </td>
+
+                            <td class="px-6 py-4">
+                                @if ($section->status)
+                                    <span
+                                        class="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
+                                        Active
+                                    </span>
+                                @else
+                                    <span class="rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-700">
+                                        Inactive
+                                    </span>
+                                @endif
+                            </td>
+
+                            <td class="px-6 py-4">
+                                <div class="flex justify-end gap-2">
+
+                                    <button wire:click="edit({{ $section->id }})"
+                                        class="rounded-lg p-2 text-amber-600 hover:bg-amber-50">
+                                        ✏️
+                                    </button>
+
+                                    <button wire:click="destroy({{ $section->id }})"
+                                        wire:confirm="Are you sure you want to delete this section?"
+                                        class="rounded-lg p-2 text-red-600 hover:bg-red-50">
+                                        🗑️
+                                    </button>
+
+                                </div>
+                            </td>
+
+                        </tr>
+
+                    @empty
+
+                        <tr>
+                            <td colspan="4" class="py-16 text-center">
+
+                                <h3 class="text-lg font-semibold text-slate-700">
+                                    No Sections Found
+                                </h3>
+
+                                <p class="mt-2 text-sm text-slate-500">
+                                    Create your first section to get started.
+                                </p>
+
+                                <button wire:click="openForm"
+                                    class="mt-5 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700">
+                                    + Add Section
+                                </button>
+
+                            </td>
+                        </tr>
+                    @endforelse
+
+                </tbody>
+
+            </table>
         </div>
 
         @if (method_exists($sections, 'links'))

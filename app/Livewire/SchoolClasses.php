@@ -17,6 +17,12 @@ class SchoolClasses extends Component
     public bool $status = true;
 
     public ?int $classId = null;
+    public $search = '';
+
+    public function updatingSearch()
+    {
+        $this->resetPage();
+    }
 
     protected function rules(): array
     {
@@ -65,8 +71,13 @@ class SchoolClasses extends Component
 
     public function render()
     {
+        $classes = SchoolClass::query()
+            ->when($this->search, function ($query) {
+                $query->where('name', 'like', '%' . $this->search . '%');
+        })->latest()->paginate(10);
+
         return view('livewire.school-classes', [
-            'classes' => SchoolClass::latest()->paginate(10),
+            'classes' => $classes,
         ]);
     }
 }

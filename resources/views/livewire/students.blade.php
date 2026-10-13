@@ -1112,13 +1112,19 @@
 
     <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm mt-5">
 
-        <div class="border-b border-slate-100 px-6 py-4">
+        <div class="flex flex-col gap-3 border-b border-slate-100 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
 
-            <h3 class="font-semibold text-slate-700">
+            <h3 class="font-semibold text-slate-700">Students List</h3>
 
-                Students List
-
-            </h3>
+            <div class="relative w-full sm:w-72">
+                <svg class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+                    fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                </svg>
+                <input type="text" wire:model.live.debounce.300ms="search" placeholder="Search students..."
+                    class="w-full rounded-xl border border-slate-300 bg-white py-2 pl-9 pr-3 text-sm text-slate-700 placeholder-slate-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500">
+            </div>
 
         </div>
 
@@ -1165,7 +1171,7 @@
                     @forelse ($students ?? [] as $student)
                         <tr class="hover:bg-slate-50">
 
-                            <td class="px-6 py-4 font-medium text-slate-800">{{ $loop->iteration }}</td>
+                            <td class="px-6 py-4 font-medium text-slate-800">{{ $students->firstItem() + $loop->index }}</td>
 
                             <td class="px-6 py-4 font-medium text-slate-800">{{ $student->name }}</td>
 

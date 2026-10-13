@@ -19,6 +19,12 @@ class AcademicYears extends Component
     public $end_date = '';
     public $is_current = 0;
     public $status = 1;
+    public $search = '';
+
+    public function updatingSearch()
+    {
+        $this->resetPage();
+    }
 
     public function rules(): array
     {
@@ -65,8 +71,11 @@ class AcademicYears extends Component
 
     public function render()
     {
+        $academicYears =  AcademicYear::query()->when($this->search, function ($query) {
+            $query->where('name', 'like', '%' . $this->search . '%');
+        })->latest()->paginate(10);
         return view('livewire.academic-years', [
-            'academicYears' => AcademicYear::latest()->paginate(10),
+            'academicYears' => $academicYears,
         ]);
     }
 }

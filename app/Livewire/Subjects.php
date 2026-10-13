@@ -17,6 +17,12 @@ class Subjects extends Component
     public $type = 'Core';
     public $status = 1;
     public $subjectId = null;
+    public $search = '';
+
+    public function updatingSearch()
+    {
+        $this->resetPage();
+    }
 
     public function rules(): array
     {
@@ -64,8 +70,11 @@ class Subjects extends Component
 
     public function render()
     {
+        $subjects = Subject::query()->when($this->search, function ($query) {
+            $query->where('name', 'like', '%' . $this->search . '%');
+        })->latest()->paginate(10);
         return view('livewire.subjects', [
-            'subjects' => Subject::latest()->paginate(10),
+            'subjects' => $subjects,
         ]);
     }
 }

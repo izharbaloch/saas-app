@@ -196,7 +196,7 @@
             <tbody class="divide-y divide-slate-100">
                 @foreach ($classSubjects as $subjects)
                     <tr class="hover:bg-slate-50">
-                        <td class="px-6 py-4 font-medium text-slate-800">{{ $loop->iteration }}</td>
+                        <td class="px-6 py-4 font-medium text-slate-800">{{ $pagedSections->firstItem() + $loop->index }}</td>
                         <td class="px-6 py-4 font-medium text-slate-800">{{ $subjects->first()->classSection->schoolClass->name }}({{ $subjects->first()->classSection->section->name }})
                         </td>
                         <td class="px-6 py-4 font-medium text-slate-800">
@@ -227,6 +227,10 @@
             </tbody>
 
         </table>
+        </div>
+
+        <div class="border-t border-slate-200 p-4">
+            {{ $pagedSections->links() }}
         </div>
 
     </div>

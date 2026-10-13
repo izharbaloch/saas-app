@@ -9,9 +9,11 @@ use App\Models\Subject;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 class ClassSubjects extends Component
 {
+    use WithPagination;
     use HasCrudForm;
 
     public $class_section_id = '';
@@ -89,10 +91,17 @@ class ClassSubjects extends Component
     }
     public function render()
     {
+        $pagedSections = ClassSubject::select('class_section_id')->groupBy('class_section_id')->orderBy('class_section_id')->paginate(10);
+        $classSubjects = ClassSubject::with(['subject', 'classSection.schoolClass', 'classSection.section'])
+            ->whereIn('class_section_id', $pagedSections->pluck('class_section_id'))
+            ->orderBy('class_section_id')->orderBy('id')
+            ->get()->groupBy('class_section_id');
+
         return view('livewire.class-subjects', [
             'classSections' => ClassSection::with(['schoolClass', 'section'])->get(),
             'subjects' => Subject::all(),
-            'classSubjects' => ClassSubject::with(['subject', 'classSection'])->get()->groupBy('class_section_id'),
+            'classSubjects' => $classSubjects,
+            'pagedSections' => $pagedSections,
         ]);
     }
 }

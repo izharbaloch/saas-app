@@ -56,6 +56,14 @@ class Students extends Component
     public $studentId = null;
     public $studenAttachments = [];
 
+    // search
+    public $search = '';
+
+    public function updatingSearch()
+    {
+        $this->resetPage();
+    }
+
     protected function rules(): array
     {
         return [
@@ -409,13 +417,19 @@ class Students extends Component
 
     public function render()
     {
+        $students = Student::query()->with([
+            'classSection.schoolClass',
+            'classSection.section',
+            'attachments',
+        ])->when($this->search, function ($query) {
+            $query->where(function ($q) {
+                $q->where('name', 'like', '%' . $this->search . '%');
+            });
+        })->paginate(10);
+
         return view('livewire.students', [
             'classSections' => ClassSection::with('schoolClass', 'section', 'academicYear')->get(),
-            'students' => Student::with([
-                'classSection.schoolClass',
-                'classSection.section',
-                'attachments',
-            ])->paginate(10),
+            'students' => $students,
         ]);
     }
 }
