@@ -113,15 +113,16 @@ class ClassSections extends Component
     public function render()
     {
         $pagedClasses = ClassSection::select('class_id')->groupBy('class_id')->orderBy('class_id')->paginate(10);
-        $classSections = ClassSection::with(['schoolClass', 'section', 'academicYear'])
+        $classSections = ClassSection::select('id', 'class_id', 'section_id', 'academic_year_id')
+            ->with(['schoolClass:id,name', 'section:id,name', 'academicYear:id,name'])
             ->whereIn('class_id', $pagedClasses->pluck('class_id'))
             ->orderBy('class_id')->orderBy('id')
             ->get()->groupBy('class_id');
 
         return view('livewire.class-sections', [
-            'classes' => SchoolClass::all(),
-            'sections' => Section::all(),
-            'academicYears' => AcademicYear::all(),
+            'classes' => SchoolClass::select('id', 'name', 'grade')->get(),
+            'sections' => Section::select('id', 'name')->get(),
+            'academicYears' => AcademicYear::select('id', 'name')->get(),
             'classSections' => $classSections,
             'pagedClasses' => $pagedClasses,
         ]);

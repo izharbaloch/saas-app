@@ -71,7 +71,7 @@ class SchoolClasses extends Component
 
     public function render()
     {
-        $classes = SchoolClass::query()
+        $classes = SchoolClass::query()->select('id', 'name', 'grade', 'status', 'created_at')
             ->when($this->search, function ($query) {
                 $query->where('name', 'like', '%' . $this->search . '%');
         })->latest()->paginate(10);

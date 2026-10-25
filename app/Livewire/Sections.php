@@ -66,7 +66,7 @@ class Sections extends Component
 
     public function render()
     {
-        $sections = Section::query()->when($this->search, function ($query) {
+        $sections = Section::query()->select('id', 'name', 'status', 'created_at')->when($this->search, function ($query) {
             $query->where('name', 'like', '%' . $this->search . '%');
         })->latest()->paginate(10);
         return view('livewire.sections', [

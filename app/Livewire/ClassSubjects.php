@@ -92,14 +92,16 @@ class ClassSubjects extends Component
     public function render()
     {
         $pagedSections = ClassSubject::select('class_section_id')->groupBy('class_section_id')->orderBy('class_section_id')->paginate(10);
-        $classSubjects = ClassSubject::with(['subject', 'classSection.schoolClass', 'classSection.section'])
+        $classSubjects = ClassSubject::select('id', 'class_section_id', 'subject_id')
+            ->with(['subject:id,name', 'classSection:id,class_id,section_id', 'classSection.schoolClass:id,name', 'classSection.section:id,name'])
             ->whereIn('class_section_id', $pagedSections->pluck('class_section_id'))
             ->orderBy('class_section_id')->orderBy('id')
             ->get()->groupBy('class_section_id');
 
         return view('livewire.class-subjects', [
-            'classSections' => ClassSection::with(['schoolClass', 'section'])->get(),
-            'subjects' => Subject::all(),
+            'classSections' => ClassSection::select('id', 'class_id', 'section_id')
+                ->with(['schoolClass:id,name', 'section:id,name'])->get(),
+            'subjects' => Subject::select('id', 'name')->get(),
             'classSubjects' => $classSubjects,
             'pagedSections' => $pagedSections,
         ]);

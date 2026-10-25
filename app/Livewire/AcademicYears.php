@@ -71,7 +71,7 @@ class AcademicYears extends Component
 
     public function render()
     {
-        $academicYears =  AcademicYear::query()->when($this->search, function ($query) {
+        $academicYears =  AcademicYear::query()->select('id', 'name', 'start_date', 'end_date', 'is_current', 'status')->when($this->search, function ($query) {
             $query->where('name', 'like', '%' . $this->search . '%');
         })->latest()->paginate(10);
         return view('livewire.academic-years', [

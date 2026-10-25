@@ -70,7 +70,7 @@ class Subjects extends Component
 
     public function render()
     {
-        $subjects = Subject::query()->when($this->search, function ($query) {
+        $subjects = Subject::query()->select('id', 'name', 'code', 'type', 'status')->when($this->search, function ($query) {
             $query->where('name', 'like', '%' . $this->search . '%');
         })->latest()->paginate(10);
         return view('livewire.subjects', [

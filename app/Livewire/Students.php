@@ -107,10 +107,6 @@ class Students extends Component
         ];
     }
 
-    /**
-     * Generate a roll number based on the highest existing roll number
-     * in the selected class/section, rather than using the global student ID.
-     */
     public function generateRollNo(): void
     {
         $query = Student::query();
@@ -119,32 +115,16 @@ class Students extends Component
             $query->where('class_section_id', $this->class_section_id);
         }
 
-        $lastNumber = $query->pluck('roll_no')
-            ->map(function ($rollNo) {
-                return preg_match('/^RN-(\d+)$/', (string) $rollNo, $matches)
-                    ? (int) $matches[1]
-                    : 0;
-            })
-            ->max() ?? 0;
+        $lastNumber = (int) $query->max('id');
 
-        $this->roll_no = 'RN-' . str_pad((string) ($lastNumber + 1), 3, '0', STR_PAD_LEFT);
+        $this->roll_no = 'RN-' . str_pad($lastNumber + 1, 3, '0', STR_PAD_LEFT);
     }
 
-    /**
-     * Generate the next admission number from existing admission numbers.
-     */
     public function generateAdmissionNo(): void
     {
-        $lastNumber = Student::query()
-            ->pluck('admission_no')
-            ->map(function ($admissionNo) {
-                return preg_match('/^ADM-(\d+)$/', (string) $admissionNo, $matches)
-                    ? (int) $matches[1]
-                    : 0;
-            })
-            ->max() ?? 0;
+        $lastNumber = (int) Student::max('id');
 
-        $this->admission_no = 'ADM-' . str_pad((string) ($lastNumber + 1), 3, '0', STR_PAD_LEFT);
+        $this->admission_no = 'ADM-' . str_pad($lastNumber + 1, 3, '0', STR_PAD_LEFT);
     }
 
     public function save(): void
@@ -243,7 +223,12 @@ class Students extends Component
 
         $student = Student::with('attachments')->findOrFail($this->studentId);
 
+        if ($student->class_section_id !== $this->class_section_id) {
+            $this->generateRollNo();
+        }
+
         $student->update([
+            'roll_no' => $this->roll_no,
             'name' => $this->name,
             'father_name' => $this->father_name,
             'gender' => $this->gender,
@@ -281,10 +266,6 @@ class Students extends Component
         $this->showForm = false;
     }
 
-    /**
-     * Save uploaded files. On update, replace the existing single-file category
-     * only after the new file has been stored successfully.
-     */
     private function storeAttachments(Student $student, bool $replaceExisting = false): void
     {
         $attachments = [
@@ -417,18 +398,27 @@ class Students extends Component
 
     public function render()
     {
-        $students = Student::query()->with([
-            'classSection.schoolClass',
-            'classSection.section',
-            'attachments',
+        $students = Student::query()->select('id', 'name', 'roll_no', 'admission_no', 'father_name', 'class_section_id')->with([
+            'classSection:id,class_id,section_id',
+            'classSection.schoolClass:id,name',
+            'classSection.section:id,name',
         ])->when($this->search, function ($query) {
             $query->where(function ($q) {
                 $q->where('name', 'like', '%' . $this->search . '%');
+                $q->orWhere('roll_no', 'like', '%' . $this->search . '%');
+                $q->orWhere('admission_no', 'like', '%' . $this->search . '%');
+                $q->orWhereHas('classSection.schoolClass', function ($subQuery) {
+                    $subQuery->where('name', 'like', '%' . $this->search . '%');
+                });
+                $q->orWhereHas('classSection.section', function ($subQuery) {
+                    $subQuery->where('name', 'like', '%' . $this->search . '%');
+                });
             });
         })->paginate(10);
 
         return view('livewire.students', [
-            'classSections' => ClassSection::with('schoolClass', 'section', 'academicYear')->get(),
+            'classSections' => ClassSection::select('id', 'class_id', 'section_id')
+                ->with(['schoolClass:id,name', 'section:id,name'])->get(),
             'students' => $students,
         ]);
     }
